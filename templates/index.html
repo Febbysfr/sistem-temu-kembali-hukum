@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistem Temu Kembali Berita Hukum</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+    header { background: linear-gradient(135deg, #1a237e, #283593); color: white; padding: 32px 20px; text-align: center; }
+    header h1 { font-size: 1.8rem; margin-bottom: 6px; }
+    header p { font-size: 0.95rem; opacity: 0.85; }
+    .search-box { max-width: 700px; margin: 32px auto 0; padding: 0 16px; }
+    .search-row { display: flex; gap: 10px; }
+    .search-row input { flex: 1; padding: 14px 18px; font-size: 1rem; border: 2px solid #c5cae9; border-radius: 8px; outline: none; }
+    .search-row input:focus { border-color: #3949ab; }
+    .search-row button { padding: 14px 24px; background: #3949ab; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+    .search-row button:hover { background: #1a237e; }
+    .results-area { max-width: 800px; margin: 28px auto 40px; padding: 0 16px; }
+    .info-text { color: #555; font-size: 0.95rem; margin-bottom: 16px; }
+    .card { background: white; border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); border-left: 4px solid #3949ab; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+    .card-title { font-size: 1.05rem; font-weight: 600; color: #1a237e; line-height: 1.4; }
+    .badge { background: #e8eaf6; color: #3949ab; font-size: 0.78rem; padding: 4px 10px; border-radius: 20px; white-space: nowrap; font-weight: 600; }
+    .card-date { font-size: 0.82rem; color: #888; margin-bottom: 10px; }
+    .card-snippet { font-size: 0.92rem; color: #444; line-height: 1.6; margin-bottom: 12px; }
+    .card-link { display: inline-block; font-size: 0.88rem; color: #3949ab; text-decoration: none; font-weight: 500; }
+    .card-link:hover { text-decoration: underline; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+    .spinner { display: none; text-align: center; padding: 40px; color: #666; }
+    .hint { max-width: 700px; margin: 12px auto 0; padding: 0 16px; font-size: 0.85rem; color: #aaa; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>⚖️ Sistem Temu Kembali Berita Hukum</h1>
+  <p>Pencarian artikel berita hukum dari Detik.com menggunakan TF-IDF &amp; Cosine Similarity</p>
+</header>
+<div class="search-box">
+  <div class="search-row">
+    <input type="text" id="queryInput" placeholder="contoh: korupsi bupati KPK..." />
+    <button onclick="doSearch()">🔍 Cari</button>
+  </div>
+</div>
+<div class="hint">Tekan Enter atau klik tombol Cari untuk mulai pencarian</div>
+<div class="results-area">
+  <div class="spinner" id="spinner">⏳ Mencari artikel...</div>
+  <div id="resultsInfo" class="info-text"></div>
+  <div id="resultsList"></div>
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📰</div>
+    <p>Masukkan kata kunci untuk mulai mencari artikel</p>
+  </div>
+</div>
+<script>
+  document.getElementById('queryInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doSearch();
+  });
+  async function doSearch() {
+    const query = document.getElementById('queryInput').value.trim();
+    if (!query) return;
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('resultsList').innerHTML = '';
+    document.getElementById('resultsInfo').textContent = '';
+    document.getElementById('emptyState').style.display = 'none';
+    try {
+      const res = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      const data = await res.json();
+      document.getElementById('spinner').style.display = 'none';
+      if (data.results.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        document.getElementById('emptyState').innerHTML = '<div class="icon">😔</div><p>Tidak ada artikel yang cocok.</p>';
+        return;
+      }
+      document.getElementById('resultsInfo').textContent = '📄 Ditemukan ' + data.total + ' artikel relevan';
+      const html = data.results.map((r, i) => `
+        <div class="card">
+          <div class="card-header">
+            <div c
+}
