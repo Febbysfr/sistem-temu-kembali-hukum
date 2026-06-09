@@ -40,7 +40,7 @@
 <div class="search-box">
   <div class="search-row">
     <input type="text" id="queryInput" placeholder="contoh: korupsi bupati KPK..." />
-    <button onclick="doSearch()">🔍 Cari</button>
+   <button id="btnCari">🔍 Cari</button>
   </div>
 </div>
 <div class="hint">Tekan Enter atau klik tombol Cari untuk mulai pencarian</div>
@@ -54,9 +54,6 @@
   </div>
 </div>
 <script>
-  document.getElementById('queryInput').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') doSearch();
-  });
   async function doSearch() {
     const query = document.getElementById('queryInput').value.trim();
     if (!query) return;
@@ -81,5 +78,26 @@
       const html = data.results.map((r, i) => `
         <div class="card">
           <div class="card-header">
-            <div c
-}
+            <div class="card-title">#${i+1} ${r.judul}</div>
+            <div class="badge">Skor: ${r.skor}</div>
+          </div>
+          <div class="card-date">📅 ${r.tanggal}</div>
+          <div class="card-snippet">${r.isi}</div>
+          <a class="card-link" href="${r.url}" target="_blank">🔗 Baca selengkapnya →</a>
+        </div>
+      `).join('');
+      document.getElementById('resultsList').innerHTML = html;
+    } catch (err) {
+      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('resultsInfo').textContent = '❌ Terjadi kesalahan. Coba lagi.';
+    }
+  }
+
+  document.getElementById('queryInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') doSearch();
+  });
+
+  document.getElementById('btnCari').addEventListener('click', doSearch);
+</script>
+</body>
+</html>
