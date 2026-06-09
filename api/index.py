@@ -4,22 +4,19 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+app = Flask(__name__, template_folder='../templates')
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def load_data():
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    csv_path = os.path.join(base_dir, 'detik_hukum_50_artikel.csv')
+    csv_path = os.path.join(BASE_DIR, 'detik_hukum_50_artikel.csv')
     df = pd.read_csv(csv_path, sep=',')
     df = df.dropna(subset=['isi'])
     return df
 
-def build_tfidf(df):
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(df['isi'])
-    return vectorizer, tfidf_matrix
-
 df = load_data()
-vectorizer, tfidf_matrix = build_tfidf(df)
+vectorizer = TfidfVectorizer()
+tfidf_matrix = vectorizer.fit_transform(df['isi'])
 
 @app.route('/')
 def index():
@@ -46,6 +43,3 @@ def search():
             'skor': round(score, 4)
         })
     return jsonify({'results': results, 'total': len(results)})
-
-if __name__ == '__main__':
-    app.run(debug=True)
